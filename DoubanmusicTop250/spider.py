@@ -9,7 +9,7 @@ def get_one_page(url):
     return response
 
 
-def get_url_page():
+def get_url_page(html):
 
     selector=etree.HTML(html.text)
     music_hrefs=selector.xpath('//a[@class="nbg"]/@href')
@@ -35,7 +35,22 @@ def parse_url_page(html):
     source=selector.xpath('//*[@id="interest_sectl"]/div/div[2]/strong/text()')[0]
     print(name, author, style, time, number,source)
 
+def main():
+    url='https://music.douban.com/top250?start=25'
+    html=get_one_page(url)
+    for item in get_url_page(html):
+        parse=get_one_page(item)
+        # html=item
+        parse_url_page(parse)
+
 if __name__=='__main__':
+    # url='https://music.douban.com/top250?start=25'
+    # html=get_one_page(url)
+    # for item in get_url_page():
+    #     parse=get_one_page(item)
+    #     # html=item
+    #     parse_url_page(parse)
+    # main()
     url='https://music.douban.com/top250?start=25'
     html=get_one_page(url)
     for item in get_url_page():
