@@ -1,0 +1,5 @@
+MONGO_URL='192.168.66.129:27017'
+MONGO_DB='DoubanMusicTop250'
+MONGO_TABLE='DoubanMusicTop250'
+
+
