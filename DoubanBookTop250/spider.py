@@ -3,6 +3,8 @@ import re
 from lxml import etree
 import pymongo
 from config import *
+
+
 # from multiprocessing import Pool
 
 # client = pymongo.MongoClient(MONGO_URL)
@@ -19,7 +21,7 @@ def get_one_page(url):
 def get_url_page(html):
     selector = etree.HTML(html.text)
     music_hrefs = selector.xpath('//a[@class="nbg"]/@href')
-    comment=re.findall('<span class="inq">(.*?)</span>',html.text,re.S)
+    comment = re.findall('<span class="inq">(.*?)</span>', html.text, re.S)
     print(comment)
     return music_hrefs
 
@@ -38,8 +40,9 @@ def parse_url_page(html):
     else:
         style = styles[0].strip()
     time = re.findall('出版年:</span>(.*?)<br/>', html.text, re.S)[0].strip()
-    number = re.findall('class="rating_people.*?"v:votes">(.*?)</span>', html.text, re.S)[0].strip()+'人评论'
+    number = re.findall('class="rating_people.*?"v:votes">(.*?)</span>', html.text, re.S)[0].strip() + '人评论'
     source = selector.xpath('//*[@id="interest_sectl"]/div/div[2]/strong/text()')[0]
+    comment=get_url_page()
     return {
         'name': name,
         'author': author,
