@@ -20,17 +20,14 @@ def get_one_page():
 
 def parse_one_page():
     pattern = re.compile(
-        '<a class="nbg".*?<img src="(.*?)" width="90" />'
+        '<table width=.*?<a class="nbg".*?<img src="(.*?)" width="90" />'
         + '.*?a href="(.*?)" onclick=&#34;'
         + '.*?&#34; title="(.*?)"'
-        + '.*?<span style="font-size:12px;">(.*?)</span>'
         + '.*?<p class="pl">(.*?)</p>'
-        + '.*?<span class="pl">(.*?)</td>'
-        # + '.*?<span class="inq">(.*?)</span>'
-        , re.S)
+        + '.*?<span class="pl">(.*?)</td>.*?</table>', re.S)
     items = re.findall(pattern, html)
     for item in items:
-        comments = re.findall('<span class="inq">(.*?)</span>', item[5])
+        comments = re.findall('<span class="inq">(.*?)</span>', item[4])
         if len(comments) == 0:
             comment = '未知'
         else:
@@ -38,9 +35,9 @@ def parse_one_page():
         yield {
             'images': item[0],
             'url': item[1],
-            'title': item[2] + ' 又名' + item[3],
-            'actor': item[4].replace('&nbsp;', '').replace('<br>\n', '').replace(' ', '').strip(),
-            'score': re.findall('\((.*?)\)</span>', item[5].replace('\n', '').replace(' ', '').strip())[0],
+            'title': item[2],
+            'actor': item[3].replace('&nbsp;', '').replace('<br>\n', '').replace(' ', '').strip(),
+            'score': re.findall('\((.*?)\)</span>', item[4].replace('\n', '').replace(' ', '').strip())[0],
             # 'score': item[5].replace('\n', '').replace(' ', '').strip(),
             'comment': comment
         }
