@@ -4,11 +4,10 @@ from lxml import etree
 import pymongo
 from config import *
 
+from multiprocessing import Pool
 
-# from multiprocessing import Pool
-
-# client = pymongo.MongoClient(MONGO_URL)
-# db = client[MONGO_DB]
+client = pymongo.MongoClient(MONGO_URL)
+db = client[MONGO_DB]
 
 
 def get_one_page(url):
@@ -22,8 +21,7 @@ def get_url_page(html):
     selector = etree.HTML(html.text)
     music_hrefs = selector.xpath('//a[@class="nbg"]/@href')
     comment = re.findall('<span class="inq">(.*?)</span>', html.text, re.S)
-    print(comment)
-    return music_hrefs
+    return music_hrefs, comment
 
 
 def parse_url_page(html):
@@ -42,20 +40,18 @@ def parse_url_page(html):
     time = re.findall('出版年:</span>(.*?)<br/>', html.text, re.S)[0].strip()
     number = re.findall('class="rating_people.*?"v:votes">(.*?)</span>', html.text, re.S)[0].strip() + '人评论'
     source = selector.xpath('//*[@id="interest_sectl"]/div/div[2]/strong/text()')[0]
-    comment=get_url_page()
     return {
         'name': name,
         'author': author,
         'styles': style,
         'time': time,
         'number': number,
-        'source': source,
-        'comment': comment
+        'source': source
     }
 
 
 def save_to_mongo(result):
-    if db[MONGO_TABLE].insert(result):
+    if db[MONGO_TABLE].insert_one(result):
         print('存储到MongoDB成功', result)
         return True
     return False
@@ -64,15 +60,16 @@ def save_to_mongo(result):
 def main(offset):
     url = 'https://book.douban.com/top250?start=' + str(offset)
     html = get_one_page(url)
-    for item in get_url_page(html):
+    print(html)
+    for item in get_url_page(html)[0]:
         parse = get_one_page(item)
         result = parse_url_page(parse)
         print(result)
-        # save_to_mongo(result)
+        save_to_mongo(result)
 
 
 if __name__ == '__main__':
-    # groups = [i * 25 for i in range(GROUP_START, GROUP_END + 1)]
-    # pool = Pool(1)
-    # pool.map(main, groups)
+    groups = [i * 25 for i in range(GROUP_START, GROUP_END + 1)]
+    pool = Pool(4)
+    pool.map(main, groups)
     main(0)
