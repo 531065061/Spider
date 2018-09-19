@@ -2,6 +2,7 @@ import requests
 import re
 import pymysql
 from config import *
+import time
 
 conn = pymysql.connect(**MYSQL)
 
@@ -24,19 +25,24 @@ def parse_one_page():
         + '.*?&#34; title="(.*?)"'
         + '.*?<span style="font-size:12px;">(.*?)</span>'
         + '.*?<p class="pl">(.*?)</p>'
-        + '.*?<span class="pl">\((.*?)\)</span>'
-        + '.*?<span class="inq">(.*?)</span>'
+        + '.*?<span class="pl">(.*?)</td>'
+        # + '.*?<span class="inq">(.*?)</span>'
         , re.S)
     items = re.findall(pattern, html)
-    print(items)
     for item in items:
+        comments = re.findall('<span class="inq">(.*?)</span>', item[5])
+        if len(comments) == 0:
+            comment = '未知'
+        else:
+            comment = comments[0]
         yield {
             'images': item[0],
             'url': item[1],
             'title': item[2] + ' 又名' + item[3],
             'actor': item[4].replace('&nbsp;', '').replace('<br>\n', '').replace(' ', '').strip(),
-            'score': item[5].replace('\n', '').replace(' ', '').strip(),
-            'comment': item[6]
+            'score': re.findall('\((.*?)\)</span>', item[5].replace('\n', '').replace(' ', '').strip())[0],
+            # 'score': item[5].replace('\n', '').replace(' ', '').strip(),
+            'comment': comment
         }
 
 
@@ -66,11 +72,12 @@ def save_to_mysql():
 
 
 if __name__ == '__main__':
-    offsets = (i * 25 for i in range(2))
+    offsets = (i * 25 for i in range(11))
     for offset in offsets:
         urls = ['http://book.douban.com/top250?start=' + str(offset) + '&filter=']
         for url in urls:
             html = get_one_page()
+            time.sleep(2)
             parse_one_page()
             for item in parse_one_page():
                 print(item)

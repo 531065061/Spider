@@ -3,6 +3,7 @@ import re
 from lxml import etree
 import pymongo
 from config import *
+import time
 
 from multiprocessing import Pool
 
@@ -62,6 +63,7 @@ def main(offset):
     html = get_one_page(url)
     print(html)
     for item in get_url_page(html)[0]:
+        time.sleep(2)
         parse = get_one_page(item)
         result = parse_url_page(parse)
         print(result)
