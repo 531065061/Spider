@@ -8,6 +8,7 @@ headers={
 def get_html(offset):
     queries='?order_by=commented_at&page='+str(offset)
     url=base_url+queries
+    print(url)
     response=requests.get(url,headers=headers)
     if response.status_code==200:
         return response
@@ -17,8 +18,21 @@ def parse_html(html):
     selector=etree.HTML(html.text)
     infos = selector.xpath('//ul[@class="note-list"]/li')
     for info in infos:
-        auth=info.xpath('div/div[1]/div/a/text()')[0]
-        print(auth)
+        auth=info.xpath('div/a/text()')[0]
+        comment=info.xpath('div/p/text()')[0]
+        nockname=info.xpath('div/div/a[1]/text()')[0]
+        iconfont=info.xpath('div/div/a[2]/text()')[1]
+        like=info.xpath('div/div/span[1]/text()')[0]
+        moneys=info.xpath('div/div/span[2]/text()')
+        if len(moneys)==0:
+            money='0'
+        else:
+            money=moneys[0]
+        date={
+            'auth':auth,
+
+        }
+        print(auth,comment,nockname,iconfont,like,money)
 
 def main():
     html=get_html(2)
