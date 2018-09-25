@@ -21,9 +21,9 @@ def get_other_html(url,offset):
     data_note_id=selector.xpath('//li/@data-note-id')
     # data_note_id=get_other_html(html)
     seen_snote_ids_param='?seen_snote_ids%5B%5D='+'&seen_snote_ids%5B%5D='.join(data_note_id)
-    html_url=base_url+seen_snote_ids_param+'&page='+offset
+    html_url=base_url+seen_snote_ids_param+'&page='+str(offset)
     # print(html_url)
-    return html_url
+    return get_html(html_url)
     # return data_note_id
 
 def get_url(html):
@@ -52,12 +52,7 @@ def main():
     #         url=homepage_url+item
     #         parse_html=get_html(url)
     #         parse_url(parse_html)
-    html_url=get_other_html(html,2)
-    for items in get_url(html_url):
-        for item in items:
-            url=homepage_url+item
-            parse_html=get_html(url)
-            parse_url(parse_html)
+    print(get_other_html(base_url,2))
     # seen_snote_ids_param='?seen_snote_ids%5B%5D='+'&seen_snote_ids%5B%5D='.join(data_note_id)
     # html_url=base_url+seen_snote_ids_param+'&page=2'
     # print(html_url)
